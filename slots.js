@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', (event) => {
 
     let slotSymbols = [//this is replaced with google sheets 
-        ["Do", "Will", "Should", "Can", "Do", "Will", "Should", "Can", "Do", "Will", "Should", "Can", "Do", "Will", "Should"],
-        ["humans", "animals", "AIs", "computers", "humans", "animals", "AIs", "computers", "humans", "animals", "AIs", "computers", "humans", "animals", "AIs"],
-        ["understand", "use", "try", "learn", "teach", "know", "understand", "use", "try", "learn", "teach", "know", "understand", "use", "try", "learn", "teach"],
-        ["thinking?", "ethics?", "love?", "emotions?", "thinking?", "ethics?", "love?", "emotions?", "thinking?", "ethics?", "love?",]
+        ["XDo", "Will", "Should", "Can", "Do", "Will", "Should", "Can", "Do", "Will", "Should", "Can", "Do", "Will", "Should"],
+        ["Xhumans", "animals", "AIs", "computers", "humans", "animals", "AIs", "computers", "humans", "animals", "AIs", "computers", "humans", "animals", "AIs"],
+        ["Xunderstand", "use", "try", "learn", "teach", "know", "understand", "use", "try", "learn", "teach", "know", "understand", "use", "try", "learn", "teach"],
+        ["Xthinking?", "ethics?", "love?", "emotions?", "thinking?", "ethics?", "love?", "emotions?", "thinking?", "ethics?", "love?",]
     ];
 
     function shuffleArray(array) {
@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const transitionDelay = 150;
 
-
     async function fetchData() {
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTX3YJRw_jV9eUmVWI8WE21ehl8F3GbeeNTD6p3DeGdsnss7K4VWq6M_Ym32HN368v2I6zYkGbn7e-K/pub?output=csv';
 
@@ -37,17 +36,33 @@ document.addEventListener('DOMContentLoaded', (event) => {
             // Parse the CSV data into an array
             const parsedData = Papa.parse(data, { skipEmptyLines: true }).data;
 
-            // Filter out the header row and any blank rows
-            const filteredData = parsedData.slice(1).filter(row => row.every(cell => cell));
+            // Remove the header row
+            const dataWithoutHeader = parsedData.slice(1);
 
             // Transpose the data so each array corresponds to a column
-            const transposedData = filteredData[0].map((_, colIndex) => filteredData.map(row => row[colIndex]));
-            //make each array repeat twice to make the slot machine effect
-            transposedData.forEach((column, index) => {
-                transposedData[index] = column.concat(column);
+            const transposedData = dataWithoutHeader[0].map((_, colIndex) => dataWithoutHeader.map(row => row[colIndex]));
+            const dataWithoutBlanks = transposedData.map(row => row.filter(cell => cell && cell.trim()));
+
+            // Filter out any blank rows
+            // const filteredData = transposedData.filter(row => row.some(cell => cell && cell.trim()));
+            const filteredData = dataWithoutBlanks.filter(row => row.length > 0);
+
+            // console.log(filteredData);
+            //filter out any rows with "" or ''
+            // Make each array repeat twice to make the slot machine effect
+
+            //shuffle the order of the filtered data
+            // for (let i = 0; i < filteredData.length; i++) {
+            //     shuffleArray(filteredData[i]);
+            // }
+            filteredData.forEach((column, index) => {
+                shuffleArray(filteredData[index]);
+                filteredData[index] = column.concat(column);
+                //shuffle the order of the filtered data
             });
-            // Assign the transposed data to slotSymbols
-            slotSymbols = transposedData;
+
+            // Assign the filtered data to slotSymbols
+            slotSymbols = filteredData;
             console.log(slotSymbols);
 
             // Call the rest of your code here, or trigger an event to signal that the data is ready
