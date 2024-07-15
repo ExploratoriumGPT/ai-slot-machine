@@ -46,8 +46,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
             // Filter out any blank rows
             // const filteredData = transposedData.filter(row => row.some(cell => cell && cell.trim()));
             const filteredData = dataWithoutBlanks.filter(row => row.length > 0);
-
-            // console.log(filteredData);
+            //replace spaces with nbsp
+            filteredData.forEach((column, index) => {
+                column.forEach((cell, cellIndex) => {
+                    column[cellIndex] = cell.replace(/ /g, '\u00A0');
+                });
+            });
+            console.log(filteredData);
             //filter out any rows with "" or ''
             // Make each array repeat twice to make the slot machine effect
 
