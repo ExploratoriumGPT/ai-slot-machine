@@ -7,12 +7,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
         ["Xthinking?", "ethics?", "love?", "emotions?", "thinking?", "ethics?", "love?", "emotions?", "thinking?", "ethics?", "love?",]
     ];
 
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-    }
 
     function createSymbolElement(symbol) {
         const div = document.createElement('div');
@@ -20,11 +14,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         div.textContent = symbol;
         return div;
     }
-
-    let spun = false;
     const slots = document.querySelectorAll('.slot');
-
-    const transitionDelay = 150;
 
     async function fetchData() {
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTX3YJRw_jV9eUmVWI8WE21ehl8F3GbeeNTD6p3DeGdsnss7K4VWq6M_Ym32HN368v2I6zYkGbn7e-K/pub?output=csv';
@@ -32,10 +22,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
         try {
             const response = await fetch(csvUrl);
             const data = await response.text();
-
             // Parse the CSV data into an array
             const parsedData = Papa.parse(data, { skipEmptyLines: true }).data;
-
             // Remove the header row
             const dataWithoutHeader = parsedData.slice(1);
 
@@ -44,33 +32,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
             const dataWithoutBlanks = transposedData.map(row => row.filter(cell => cell && cell.trim()));
 
             // Filter out any blank rows
-            // const filteredData = transposedData.filter(row => row.some(cell => cell && cell.trim()));
             const filteredData = dataWithoutBlanks.filter(row => row.length > 0);
+
             //replace spaces with nbsp
             filteredData.forEach((column, index) => {
                 column.forEach((cell, cellIndex) => {
                     column[cellIndex] = cell.replace(/ /g, '\u00A0');
                 });
             });
-            console.log(filteredData);
-            //filter out any rows with "" or ''
-            // Make each array repeat twice to make the slot machine effect
-
-            //shuffle the order of the filtered data
-            // for (let i = 0; i < filteredData.length; i++) {
-            //     shuffleArray(filteredData[i]);
-            // }
-            filteredData.forEach((column, index) => {
-                shuffleArray(filteredData[index]);
-                filteredData[index] = column.concat(column);
-                //shuffle the order of the filtered data
-            });
-
-            // Assign the filtered data to slotSymbols
+            console.log("data cleaned:", filteredData);
             slotSymbols = filteredData;
-            console.log(slotSymbols);
-
-            // Call the rest of your code here, or trigger an event to signal that the data is ready
             generate();
         } catch (error) {
             console.error('Error with google sheets:', error);
@@ -82,34 +53,24 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
     function generate() {
-
         slots.forEach((slot, index) => {
             const symbols = slot.querySelector('.symbols');
             symbols.innerHTML = '';
 
-            // Append a copy of the symbols at the beginning
-            slotSymbols[index].forEach(symbol => {
-                symbols.appendChild(createSymbolElement(symbol));
-            });
-
-            // Append the original symbols
-            slotSymbols[index].forEach(symbol => {
-                symbols.appendChild(createSymbolElement(symbol));
-            });
-
-            // Append a copy of the symbols at the end
-            slotSymbols[index].forEach(symbol => {
-                symbols.appendChild(createSymbolElement(symbol));
-            });
-
-            symbols.style.transitionDelay = `${transitionDelay * index}ms`;
+            // Append three copies of the symbols
+            for (let i = 0; i < 3; i++) {
+                slotSymbols[index].forEach(symbol => {
+                    symbols.appendChild(createSymbolElement(symbol));
+                });
+            }
+            // symbols.style.transitionDelay = `${transitionDelay * index}ms`;
         });
+        // console.log("3x:", slotSymbols);
+
     }
+
     function spin() {
         return new Promise(resolve => {
-            if (spun) {
-                reset();
-            }
             let completedSlots = 0;
 
             slots.forEach((slot, index) => {
@@ -117,15 +78,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 const symbolHeight = symbols.querySelector('.symbol')?.clientHeight;
                 const symbolCount = symbols.childElementCount;
 
-                const extraSpins = Math.floor(Math.random() * 10); // Generate a random number of extra spins
-                const totalDistance = (symbolCount / 3 + extraSpins) * symbolHeight; // Divide the symbolCount by 3
+                const extraSpins = (Math.floor(Math.random() * 10)); // Generate a random number of extra spins
+                // const totalDistance = (symbolCount / 3 + extraSpins) * symbolHeight; // Divide the symbolCount by 3
                 const randomOffset = -((symbolCount / 3 - 3) + extraSpins) * symbolHeight; // Divide the symbolCount by 3
                 symbols.style.top = `${randomOffset}px`;
 
                 symbols.addEventListener('transitionend', () => {
                     completedSlots++;
                     if (completedSlots === slots.length) {
-                        logDisplayedSymbols();
+                        // logDisplayedSymbols();
                         spun = true;
                         resolve();
                     }
@@ -134,63 +95,29 @@ document.addEventListener('DOMContentLoaded', (event) => {
         });
     }
 
-    const spinAmountInput = document.querySelector('.spinAmount');
-
-    async function autoSpin() {
-        let spinAmount = spinAmountInput.value;
-        if (spinAmount) {
-            spinAmountInput.style.border = 'none';
-            for (let i = 0; i < spinAmount; i++) {
-                await spin();
-                await new Promise(resolve => setTimeout(resolve, transitionDelay * slots.length)); // Wait for a delay before starting the next spin
-            }
-        } else {
-            spinAmountInput.style.border = '2px solid red';
-        }
-    }
-
-    function reset() {
-        const slots = document.querySelectorAll('.slot');
-
-        slots.forEach(slot => {
-            const symbols = slot.querySelector('.symbols');
-            symbols.style.transition = 'none';
-            symbols.style.top = '0';
-            symbols.offsetHeight;
-            symbols.style.transition = '';
-        });
-
-        generate();
-    }
-
-    function logDisplayedSymbols() {
-        const slots = document.querySelectorAll('.slot');
-        const displayedSymbols = [[], [], []];
-
-        slots.forEach((slot) => {
-            const symbols = slot.querySelector('.symbols');
-            const symbolArray = Array.from(symbols.textContent);
-            displayedSymbols[0].push(symbolArray[symbolArray.length - 3]);
-            displayedSymbols[1].push(symbolArray[symbolArray.length - 2]);
-            displayedSymbols[2].push(symbolArray[symbolArray.length - 1]);
-        });
-
-        displayedSymbols.forEach((symbols, index) => {
-            console.log(`Displayed symbols(row ${index + 1}): ${symbols}`);
-        });
-    }
-
-
-
-    generate();
     const leverContainer = document.querySelector('.levercontainer');
-
-    leverContainer.addEventListener('mousedown', function () {
+    function spinAndRotate() {
         leverContainer.style.transform = 'rotate(180deg)';
         spin();
-    });
+    }
 
-    leverContainer.addEventListener('mouseup', function () {
+    function resetRotation() {
         leverContainer.style.transform = '';
+    }
+
+    document.addEventListener('mousedown', spinAndRotate);
+    document.addEventListener('mouseup', resetRotation);
+    document.addEventListener('touchstart', spinAndRotate);
+    document.addEventListener('touchend', resetRotation);
+
+    document.addEventListener('keydown', function (event) {
+        if (event.code === 'Space') {
+            spinAndRotate();
+        }
+    });
+    document.addEventListener('keyup', function (event) {
+        if (event.code === 'Space') {
+            resetRotation();
+        }
     });
 });
