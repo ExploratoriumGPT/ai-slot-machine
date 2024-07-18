@@ -6,6 +6,8 @@ body {
     height: 100%;
     margin: 0;
     padding: 0;
+    overflow: hidden;
+
 }
 
 body {
@@ -24,6 +26,8 @@ body {
     align-items: center;
     justify-content: center;
     height: 100vh;
+    overflow: hidden;
+
 }
 
 .slotcontainer {
@@ -31,6 +35,8 @@ body {
     justify-content: center;
     align-items: center;
     margin-bottom: 20px;
+    overflow: hidden;
+
 
 }
 
