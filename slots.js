@@ -97,12 +97,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const leverContainer = document.querySelector('.levercontainer');
     function spinAndRotate() {
-        leverContainer.style.transform = 'rotate(180deg)';
+        // leverContainer.style.transform = 'rotate(180deg)';
         spin();
     }
 
     function resetRotation() {
-        leverContainer.style.transform = '';
+        // leverContainer.style.transform = '';
     }
 
     document.addEventListener('mousedown', spinAndRotate);
