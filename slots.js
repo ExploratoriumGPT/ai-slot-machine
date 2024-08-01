@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', (event) => {
-
-    let slotSymbols = [//this is replaced with google sheets 
+    let slotSymbols = [//this is replaced with google sheets
         ["XDo", "Will", "Should", "Can", "Do", "Will", "Should", "Can", "Do", "Will", "Should", "Can", "Do", "Will", "Should"],
         ["Xhumans", "animals", "AIs", "computers", "humans", "animals", "AIs", "computers", "humans", "animals", "AIs", "computers", "humans", "animals", "AIs"],
         ["Xunderstand", "use", "try", "learn", "teach", "know", "understand", "use", "try", "learn", "teach", "know", "understand", "use", "try", "learn", "teach"],
@@ -57,17 +56,17 @@ document.addEventListener('DOMContentLoaded', (event) => {
             const symbols = slot.querySelector('.symbols');
             symbols.innerHTML = '';
 
-            // Append three copies of the symbols
-            for (let i = 0; i < 3; i++) {
+            // Append 100 copies of the symbols
+            for (let i = 0; i < 100; i++) {
                 slotSymbols[index].forEach(symbol => {
                     symbols.appendChild(createSymbolElement(symbol));
                 });
             }
-            // symbols.style.transitionDelay = `${transitionDelay * index}ms`;
         });
-        // console.log("3x:", slotSymbols);
 
     }
+
+    let wheelPositions = [250, 250, 250, 250];
 
     function spin() {
         return new Promise(resolve => {
@@ -78,9 +77,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 const symbolHeight = symbols.querySelector('.symbol')?.clientHeight;
                 const symbolCount = symbols.childElementCount;
 
-                const extraSpins = (Math.floor(Math.random() * 10)); // Generate a random number of extra spins
-                // const totalDistance = (symbolCount / 3 + extraSpins) * symbolHeight; // Divide the symbolCount by 3
-                const randomOffset = -((symbolCount / 3 - 3) + extraSpins) * symbolHeight; // Divide the symbolCount by 3
+                // go in random direction by between 10 and 20
+                var newPosition = Math.floor(Math.random() * 10) + 10;
+                if (Math.random() > 0.5) {
+                    newPosition = -1 * newPosition;
+                }
+                // if random direction would put us off the edge, course correct manually
+                if (wheelPositions[index] + newPosition < 0) {
+                    newPosition = 200;
+                } else if (wheelPositions[index] + newPosition > 500) {
+                    newPosition = -200;
+                }
+                wheelPositions[index] = wheelPositions[index] + newPosition;
+                const randomOffset = -wheelPositions[index] * symbolHeight;
                 symbols.style.top = `${randomOffset}px`;
 
                 symbols.addEventListener('transitionend', () => {
@@ -97,27 +106,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const leverContainer = document.querySelector('.levercontainer');
     function spinAndRotate() {
-        // leverContainer.style.transform = 'rotate(180deg)';
+        console.log("spin");
         spin();
     }
 
-    function resetRotation() {
-        // leverContainer.style.transform = '';
-    }
-
     document.addEventListener('mousedown', spinAndRotate);
-    document.addEventListener('mouseup', resetRotation);
     document.addEventListener('touchstart', spinAndRotate);
-    document.addEventListener('touchend', resetRotation);
 
     document.addEventListener('keydown', function (event) {
         if (event.code === 'Space') {
             spinAndRotate();
-        }
-    });
-    document.addEventListener('keyup', function (event) {
-        if (event.code === 'Space') {
-            resetRotation();
         }
     });
 });
