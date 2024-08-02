@@ -83,7 +83,7 @@ body {
 
 .slot .symbols {
     position: absolute;
-    top: 0;
+    top: -17000px;
     left: 0;
     /* transition: top 4s; */
     transition: top 3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
