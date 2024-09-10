@@ -21,6 +21,11 @@ body {
     overflow: hidden;
 }
 
+body,
+.slot {
+    cursor: none;
+}
+
 body {
     background: url('https://docs.google.com/drawings/d/e/2PACX-1vSP-z_ItLKU6XQ3vOeGTxT-rMLHTloek7wUG5Au1fmls2RJMahlmFy95z39MIedkqHnnf5H_chN1L_z/pub?w=1440&h=810') no-repeat left center fixed;
     -webkit-background-size: cover;
